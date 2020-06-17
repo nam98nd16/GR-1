@@ -7,7 +7,9 @@
         </nuxt-link>
       </a-menu-item>
       <a-menu-item key="profile">
-        <a-icon type="user" />Profile
+        <nuxt-link :to="'/profile'">
+          <a-icon type="user" />Profile
+        </nuxt-link>
       </a-menu-item>
       <a-menu-item @click="handleLogout" key="logout">
         <a-icon type="logout" />Log out

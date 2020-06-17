@@ -71,10 +71,16 @@ export default {
             this.handleError("Passwords do not match!");
           else
             try {
-              await this.$fireAuth.createUserWithEmailAndPassword(
+              let res = await this.$fireAuth.createUserWithEmailAndPassword(
                 values.userName,
                 values.password
               );
+              await this.$fireStore
+                .collection("users")
+                .doc(res.user.uid)
+                .set({
+                  fullName: ""
+                });
               this.$router.push("/login");
             } catch (e) {
               this.handleError(e.message);
@@ -90,7 +96,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 #components-form-demo-normal-login {
   align-items: center;
 }

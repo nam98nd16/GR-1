@@ -50,6 +50,8 @@
 </template>
 
 <script>
+import { mapMutations } from "vuex";
+import jwt_decode from "jwt-decode";
 export default {
   layout: "login",
   beforeCreate() {
@@ -61,6 +63,9 @@ export default {
     };
   },
   methods: {
+    ...mapMutations({
+      setCurrentUser: "profile/setCurrentUser"
+    }),
     handleSubmit(e) {
       e.preventDefault();
       this.form.validateFields(async (err, values) => {
@@ -70,6 +75,7 @@ export default {
             .then(data => {
               this.$fireAuth.currentUser.getIdToken(true).then(idToken => {
                 localStorage.setItem("token", idToken);
+                this.setCurrentUser(jwt_decode(idToken));
                 this.$router.push("/");
               });
             })
@@ -83,7 +89,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 #components-form-demo-normal-login {
   align-items: center;
 }
