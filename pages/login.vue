@@ -27,6 +27,7 @@
             <a-icon slot="prefix" type="lock" style="color: rgba(0,0,0,.25)" />
           </a-input>
         </a-form-item>
+        <div v-if="errMessage">{{errMessage}}</div>
         <a-form-item>
           <a-checkbox
             v-decorator="[
@@ -52,13 +53,27 @@ export default {
   beforeCreate() {
     this.form = this.$form.createForm(this, { name: "normal_login" });
   },
+  data() {
+    return {
+      errMessage: ""
+    };
+  },
   methods: {
     handleSubmit(e) {
       e.preventDefault();
-      this.form.validateFields((err, values) => {
+      this.form.validateFields(async (err, values) => {
         if (!err) {
-          console.log("Received values of form: ", values);
-          this.$router.push("/");
+          await this.$fireAuth
+            .signInWithEmailAndPassword(values.userName, values.password)
+            .then(data => {
+              this.$fireAuth.currentUser.getIdToken(true).then(idToken => {
+                localStorage.setItem("token", idToken);
+                this.$router.push("/");
+              });
+            })
+            .catch(err => {
+              this.errMessage = err.message;
+            });
         }
       });
     }
