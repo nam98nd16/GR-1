@@ -27,21 +27,23 @@
             <a-icon slot="prefix" type="lock" style="color: rgba(0,0,0,.25)" />
           </a-input>
         </a-form-item>
+        <a-form-item>
+          <a-input
+            v-decorator="[
+          'rePassword',
+          { rules: [{ required: true, message: 'Please re-enter your Password!' }] },
+        ]"
+            type="password"
+            placeholder="Re-enter Password"
+          >
+            <a-icon slot="prefix" type="lock" style="color: rgba(0,0,0,.25)" />
+          </a-input>
+        </a-form-item>
         <div v-if="errMessage">{{errMessage}}</div>
         <a-form-item>
-          <a-checkbox
-            v-decorator="[
-          'remember',
-          {
-            valuePropName: 'checked',
-            initialValue: true,
-          },
-        ]"
-          >Remember me</a-checkbox>
-          <a class="login-form-forgot" href>Forgot password</a>
-          <a-button type="primary" html-type="submit" class="login-form-button">Log in</a-button>Or
-          <nuxt-link :to="'/register'">
-            <a>register now!</a>
+          <a-button type="primary" html-type="submit" class="login-form-button">Sign up</a-button>Or
+          <nuxt-link :to="'/login'">
+            <a>login now!</a>
           </nuxt-link>
         </a-form-item>
       </a-form>
@@ -53,7 +55,7 @@
 export default {
   layout: "login",
   beforeCreate() {
-    this.form = this.$form.createForm(this, { name: "normal_login" });
+    this.form = this.$form.createForm(this, { name: "normal_register" });
   },
   data() {
     return {
@@ -65,19 +67,24 @@ export default {
       e.preventDefault();
       this.form.validateFields(async (err, values) => {
         if (!err) {
-          await this.$fireAuth
-            .signInWithEmailAndPassword(values.userName, values.password)
-            .then(data => {
-              this.$fireAuth.currentUser.getIdToken(true).then(idToken => {
-                localStorage.setItem("token", idToken);
-                this.$router.push("/");
-              });
-            })
-            .catch(err => {
-              this.errMessage = err.message;
-            });
+          if (values.password !== values.rePassword)
+            this.handleError("Passwords do not match!");
+          else
+            try {
+              await this.$fireAuth.createUserWithEmailAndPassword(
+                values.userName,
+                values.password
+              );
+              this.$router.push("/login");
+            } catch (e) {
+              this.handleError(e.message);
+            }
         }
       });
+    },
+    handleError(e) {
+      this.errMessage = e;
+      setTimeout(() => (this.errMessage = ""), 3000);
     }
   }
 };
