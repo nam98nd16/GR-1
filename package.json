@@ -1,0 +1,19 @@
+{
+  "name": "skill-assessment",
+  "version": "1.0.0",
+  "description": "For GR-1",
+  "author": "nam",
+  "private": true,
+  "scripts": {
+    "dev": "nuxt",
+    "build": "nuxt build",
+    "start": "nuxt start",
+    "generate": "nuxt generate"
+  },
+  "dependencies": {
+    "nuxt": "^2.0.0",
+    "ant-design-vue": "^1.1.10",
+    "@nuxtjs/axios": "^5.3.6"
+  },
+  "devDependencies": {}
+}
