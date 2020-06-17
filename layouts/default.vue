@@ -1,13 +1,22 @@
 <template>
-  <div>
+  <a-layout>
+    <Nav />
     <nuxt />
-  </div>
+  </a-layout>
 </template>
+
+<script>
+import Nav from "@/components/Nav";
+export default {
+  middleware: "auth",
+  components: { Nav }
+};
+</script>
 
 <style>
 html {
-  font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI',
-    Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
   font-size: 16px;
   word-spacing: 1px;
   -ms-text-size-adjust: 100%;
