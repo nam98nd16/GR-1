@@ -9,6 +9,9 @@
       <a-menu-item key="profile">
         <a-icon type="user" />Profile
       </a-menu-item>
+      <a-menu-item @click="handleLogout" key="logout">
+        <a-icon type="logout" />Log out
+      </a-menu-item>
     </a-menu>
   </div>
 </template>
@@ -20,6 +23,11 @@ export default {
       current: ["home"]
     };
   },
-  methods: {}
+  methods: {
+    handleLogout() {
+      localStorage.removeItem("token");
+      this.$router.push("/login");
+    }
+  }
 };
 </script>
