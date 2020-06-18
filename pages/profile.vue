@@ -2,7 +2,7 @@
   <div class="container">
     <a-form :form="form" class="login-form" @submit="handleSubmit">
       <a-form-item :label="'Email'" v-bind="formItemLayout">
-        <a-input disabled :value="currentUser.email" placeholder="Email">
+        <a-input disabled :value="currentUser ? currentUser.email : ''" placeholder="Email">
           <a-icon slot="prefix" type="mail" style="color: rgba(0,0,0,.25)" />
         </a-input>
       </a-form-item>
@@ -40,6 +40,7 @@
 
 <script>
 import { mapState } from "vuex";
+import jwt_decode from "jwt-decode";
 export default {
   components: {},
   data() {
@@ -54,14 +55,16 @@ export default {
           sm: 24
         }
       },
-      user: null
+      user: null,
+      currentUser: null
     };
   },
   beforeCreate() {
     this.form = this.$form.createForm(this, { name: "profile" });
   },
   mounted() {
-    if (this.currentUser) this.getProfile();
+    this.currentUser = jwt_decode(localStorage.getItem("token"));
+    this.getProfile();
   },
   methods: {
     handleSubmit(e) {
@@ -74,7 +77,9 @@ export default {
             .set({
               fullName: values.fullName,
               phoneNumber: values.phoneNumber,
-              birthday: this.$moment(values.birthday).format("YYYY-MM-DD")
+              birthday: this.$moment(values.birthday, "YYYY-MM-DD").format(
+                "YYYY-MM-DD"
+              )
             })
             .then(() => {
               this.$notification.success({ message: "Update successfully!" });
@@ -96,7 +101,11 @@ export default {
             this.user = doc.data();
             for (let field in this.user)
               this.form.setFieldsValue({
-                [field]: this.user[field]
+                [field]:
+                  field == "birthday" &&
+                  this.$moment(this.user[field]).isValid()
+                    ? this.$moment(this.user[field])
+                    : this.user[field]
               });
           } else {
             // doc.data() will be undefined in this case
@@ -107,11 +116,6 @@ export default {
           console.log("Error getting document:", error);
         });
     }
-  },
-  computed: {
-    ...mapState({
-      currentUser: state => state.profile.currentUser
-    })
   }
 };
 </script>
