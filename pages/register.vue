@@ -8,9 +8,9 @@
           <a-input
             v-decorator="[
           'userName',
-          { rules: [{ required: true, message: 'Please input your username!' }] },
+          { rules: [{ required: true, message: 'Please input your email!' }] },
         ]"
-            placeholder="Username"
+            placeholder="Email"
           >
             <a-icon slot="prefix" type="user" style="color: rgba(0,0,0,.25)" />
           </a-input>

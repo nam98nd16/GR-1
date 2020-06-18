@@ -15,35 +15,11 @@
             <a-icon slot="prefix" type="user" style="color: rgba(0,0,0,.25)" />
           </a-input>
         </a-form-item>
-        <a-form-item>
-          <a-input
-            v-decorator="[
-          'password',
-          { rules: [{ required: true, message: 'Please input your Password!' }] },
-        ]"
-            type="password"
-            placeholder="Password"
-          >
-            <a-icon slot="prefix" type="lock" style="color: rgba(0,0,0,.25)" />
-          </a-input>
-        </a-form-item>
         <div v-if="errMessage">{{errMessage}}</div>
         <a-form-item>
-          <a-checkbox
-            v-decorator="[
-          'remember',
-          {
-            valuePropName: 'checked',
-            initialValue: true,
-          },
-        ]"
-          >Remember me</a-checkbox>
-          <nuxt-link :to="'/reset-password'">
-            <a class="login-form-forgot">Forgot password</a>
-          </nuxt-link>
-          <a-button type="primary" html-type="submit" class="login-form-button">Log in</a-button>Or
-          <nuxt-link :to="'/register'">
-            <a>register now!</a>
+          <a-button type="primary" html-type="submit" class="login-form-button">Reset password</a-button>
+          <nuxt-link to="/login">
+            <a>Back to login page</a>
           </nuxt-link>
         </a-form-item>
       </a-form>
@@ -52,12 +28,10 @@
 </template>
 
 <script>
-import { mapMutations } from "vuex";
-import jwt_decode from "jwt-decode";
 export default {
   layout: "login",
   beforeCreate() {
-    this.form = this.$form.createForm(this, { name: "normal_login" });
+    this.form = this.$form.createForm(this, { name: "reset-password" });
   },
   data() {
     return {
@@ -65,28 +39,30 @@ export default {
     };
   },
   methods: {
-    ...mapMutations({
-      setCurrentUser: "profile/setCurrentUser"
-    }),
     handleSubmit(e) {
       e.preventDefault();
       this.form.validateFields(async (err, values) => {
         if (!err) {
-          await this.$fireAuth
-            .signInWithEmailAndPassword(values.userName, values.password)
-            .then(data => {
-              this.$fireAuth.currentUser.getIdToken(true).then(idToken => {
-                localStorage.setItem("token", idToken);
-                this.setCurrentUser(jwt_decode(idToken));
-                this.$router.push("/");
+          this.$fireAuth
+            .sendPasswordResetEmail(values.userName)
+            .then(() => {
+              // Email sent.
+              this.$notification.success({
+                message:
+                  "An email has been sent. Please follow the email's instructions to reset your password."
               });
             })
-            .catch(err => {
-              this.errMessage = err.message;
+            .catch(error => {
+              // An error happened.
+              this.errMessage = error.message;
               setTimeout(() => (this.errMessage = ""), 3000);
             });
         }
       });
+    },
+    handleError(e) {
+      this.errMessage = e;
+      setTimeout(() => (this.errMessage = ""), 3000);
     }
   }
 };
