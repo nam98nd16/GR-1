@@ -1,8 +1,40 @@
 <template>
   <div class="container">
-    <div v-if="user">
-      <p>Full name: {{user.fullName}}</p>
-    </div>
+    <a-form :form="form" class="login-form" @submit="handleSubmit">
+      <a-form-item :label="'Email'" v-bind="formItemLayout">
+        <a-input disabled :value="currentUser.email" placeholder="Email">
+          <a-icon slot="prefix" type="mail" style="color: rgba(0,0,0,.25)" />
+        </a-input>
+      </a-form-item>
+      <a-form-item :label="'Full name'" v-bind="formItemLayout">
+        <a-input
+          v-decorator="[
+          'fullName',
+          { rules: [{ required: true, message: 'Please input your full name!' }] },
+        ]"
+          placeholder="Full name"
+        >
+          <a-icon slot="prefix" type="user" style="color: rgba(0,0,0,.25)" />
+        </a-input>
+      </a-form-item>
+      <a-form-item :label="'Phone number'" v-bind="formItemLayout">
+        <a-input
+          v-decorator="[
+          'phoneNumber',
+          { rules: [{ pattern: /^(0|[1-9][0-9]*)$/, message: 'Please input a valid phone number!' }] },
+        ]"
+          placeholder="Phone number"
+        >
+          <a-icon slot="prefix" type="mobile" style="color: rgba(0,0,0,.25)" />
+        </a-input>
+      </a-form-item>
+      <a-form-item :label="'Birthday'" v-bind="formItemLayout">
+        <a-date-picker format="YYYY-MM-DD" v-decorator="['birthday']" />
+      </a-form-item>
+      <a-form-item :label="'  '" v-bind="formItemLayout" :colon="false">
+        <a-button type="primary" html-type="submit" class="login-form-button">Update</a-button>
+      </a-form-item>
+    </a-form>
   </div>
 </template>
 
@@ -12,11 +44,48 @@ export default {
   components: {},
   data() {
     return {
+      formItemLayout: {
+        labelCol: {
+          md: 8,
+          sm: 24
+        },
+        wrapperCol: {
+          md: 16,
+          sm: 24
+        }
+      },
       user: null
     };
   },
+  beforeCreate() {
+    this.form = this.$form.createForm(this, { name: "profile" });
+  },
   mounted() {
-    if (this.currentUser) {
+    if (this.currentUser) this.getProfile();
+  },
+  methods: {
+    handleSubmit(e) {
+      e.preventDefault();
+      this.form.validateFields(async (err, values) => {
+        if (!err) {
+          this.$fireStore
+            .collection("users")
+            .doc(this.currentUser.user_id)
+            .set({
+              fullName: values.fullName,
+              phoneNumber: values.phoneNumber,
+              birthday: this.$moment(values.birthday).format("YYYY-MM-DD")
+            })
+            .then(() => {
+              this.$notification.success({ message: "Update successfully!" });
+            })
+            .catch(error => {
+              this.$notification.error({ message: error.message });
+            });
+        }
+      });
+    },
+    getProfile() {
       var docRef = this.$fireStore
         .collection("users")
         .doc(this.currentUser.user_id);
@@ -24,8 +93,11 @@ export default {
         .get()
         .then(doc => {
           if (doc.exists) {
-            console.log("Document data:", doc.data());
             this.user = doc.data();
+            for (let field in this.user)
+              this.form.setFieldsValue({
+                [field]: this.user[field]
+              });
           } else {
             // doc.data() will be undefined in this case
             console.log("No such document!");
@@ -44,5 +116,12 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
+.container {
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 </style>
