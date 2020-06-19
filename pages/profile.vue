@@ -32,7 +32,12 @@
         <a-date-picker format="YYYY-MM-DD" v-decorator="['birthday']" />
       </a-form-item>
       <a-form-item :label="'  '" v-bind="formItemLayout" :colon="false">
-        <a-button type="primary" html-type="submit" class="login-form-button">Update</a-button>
+        <a-button
+          :loading="loading"
+          type="primary"
+          html-type="submit"
+          class="login-form-button"
+        >Update</a-button>
       </a-form-item>
     </a-form>
   </div>
@@ -56,7 +61,8 @@ export default {
         }
       },
       user: null,
-      currentUser: null
+      currentUser: null,
+      loading: false
     };
   },
   beforeCreate() {
@@ -71,21 +77,25 @@ export default {
       e.preventDefault();
       this.form.validateFields(async (err, values) => {
         if (!err) {
+          this.loading = true;
           this.$fireStore
             .collection("users")
             .doc(this.currentUser.user_id)
             .set({
               fullName: values.fullName,
               phoneNumber: values.phoneNumber,
-              birthday: this.$moment(values.birthday, "YYYY-MM-DD").format(
-                "YYYY-MM-DD"
-              )
+              birthday: values.birthday
+                ? this.$moment(values.birthday).format("YYYY-MM-DD")
+                : ""
             })
             .then(() => {
               this.$notification.success({ message: "Update successfully!" });
             })
             .catch(error => {
               this.$notification.error({ message: error.message });
+            })
+            .finally(() => {
+              this.loading = false;
             });
         }
       });
