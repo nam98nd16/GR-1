@@ -91,9 +91,8 @@ export default {
               this.$router.push("/login");
             } catch (e) {
               this.handleError(e.message);
-            } finally {
-              this.loading = false;
             }
+          this.loading = false;
         }
       });
     },
