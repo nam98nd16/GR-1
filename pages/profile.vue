@@ -44,7 +44,7 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapState, mapMutations } from "vuex";
 import jwt_decode from "jwt-decode";
 export default {
   components: {},
@@ -73,6 +73,9 @@ export default {
     this.getProfile();
   },
   methods: {
+    ...mapMutations({
+      setUpdatedFullName: "profile/setUpdatedFullName"
+    }),
     handleSubmit(e) {
       e.preventDefault();
       this.form.validateFields(async (err, values) => {
@@ -83,13 +86,14 @@ export default {
             .doc(this.currentUser.user_id)
             .set({
               fullName: values.fullName,
-              phoneNumber: values.phoneNumber,
+              phoneNumber: values.phoneNumber ? values.phoneNumber : "",
               birthday: values.birthday
                 ? this.$moment(values.birthday).format("YYYY-MM-DD")
                 : ""
             })
             .then(() => {
               this.$notification.success({ message: "Update successfully!" });
+              this.setUpdatedFullName(values.fullName);
             })
             .catch(error => {
               this.$notification.error({ message: error.message });

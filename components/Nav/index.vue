@@ -8,7 +8,8 @@
       </a-menu-item>
       <a-menu-item key="profile">
         <nuxt-link :to="'/profile'">
-          <a-icon type="user" />Profile
+          <a-icon type="user" />
+          {{getProfileName}}
         </nuxt-link>
       </a-menu-item>
       <a-menu-item @click="handleLogout" key="logout">
@@ -19,6 +20,8 @@
 </template>
 
 <script>
+import jwt_decode from "jwt-decode";
+import { mapState, mapMutations } from "vuex";
 export default {
   data() {
     return {
@@ -26,9 +29,26 @@ export default {
     };
   },
   methods: {
+    ...mapMutations({
+      setUpdatedFullName: "profile/setUpdatedFullName"
+    }),
     handleLogout() {
-      localStorage.removeItem("token");
+      localStorage.clear();
+      this.setUpdatedFullName("");
       this.$router.push("/login");
+    }
+  },
+  computed: {
+    ...mapState({
+      updatedFullName: state => state["profile"].updatedFullName
+    }),
+    getProfileName() {
+      let fullName = localStorage.getItem("fullName");
+      return this.updatedFullName
+        ? this.updatedFullName
+        : fullName
+        ? fullName
+        : "Profile";
     }
   }
 };

@@ -77,8 +77,24 @@ export default {
             .then(data => {
               this.$fireAuth.currentUser.getIdToken(true).then(idToken => {
                 localStorage.setItem("token", idToken);
-                this.setCurrentUser(jwt_decode(idToken));
-                this.$router.push("/");
+                let docRef = this.$fireStore
+                  .collection("users")
+                  .doc(this.$fireAuth.currentUser.uid);
+                docRef
+                  .get()
+                  .then(doc => {
+                    if (doc.exists) {
+                      let user = doc.data();
+                      localStorage.setItem("fullName", user.fullName);
+                      this.$router.push("/");
+                    } else {
+                      console.log("No such document!");
+                    }
+                  })
+                  .catch(function(error) {
+                    console.log("Error getting document:", error);
+                  });
+                //this.setCurrentUser(jwt_decode(idToken));
               });
             })
             .catch(err => {
