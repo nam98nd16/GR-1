@@ -41,7 +41,12 @@
         </a-form-item>
         <div v-if="errMessage">{{errMessage}}</div>
         <a-form-item>
-          <a-button type="primary" html-type="submit" class="login-form-button">Sign up</a-button>Or
+          <a-button
+            :loading="loading"
+            type="primary"
+            html-type="submit"
+            class="login-form-button"
+          >Sign up</a-button>Or
           <nuxt-link :to="'/login'">
             <a>login now!</a>
           </nuxt-link>
@@ -59,7 +64,8 @@ export default {
   },
   data() {
     return {
-      errMessage: ""
+      errMessage: "",
+      loading: false
     };
   },
   methods: {
@@ -67,6 +73,7 @@ export default {
       e.preventDefault();
       this.form.validateFields(async (err, values) => {
         if (!err) {
+          this.loading = true;
           if (values.password !== values.rePassword)
             this.handleError("Passwords do not match!");
           else
@@ -84,6 +91,8 @@ export default {
               this.$router.push("/login");
             } catch (e) {
               this.handleError(e.message);
+            } finally {
+              this.loading = false;
             }
         }
       });

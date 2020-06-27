@@ -17,7 +17,12 @@
         </a-form-item>
         <div v-if="errMessage">{{errMessage}}</div>
         <a-form-item>
-          <a-button type="primary" html-type="submit" class="login-form-button">Reset password</a-button>
+          <a-button
+            :loading="loading"
+            type="primary"
+            html-type="submit"
+            class="login-form-button"
+          >Reset password</a-button>
           <nuxt-link to="/login">
             <a>Back to login page</a>
           </nuxt-link>
@@ -35,7 +40,8 @@ export default {
   },
   data() {
     return {
-      errMessage: ""
+      errMessage: "",
+      loading: false
     };
   },
   methods: {
@@ -43,6 +49,7 @@ export default {
       e.preventDefault();
       this.form.validateFields(async (err, values) => {
         if (!err) {
+          this.loading = true;
           this.$fireAuth
             .sendPasswordResetEmail(values.userName)
             .then(() => {
@@ -56,6 +63,9 @@ export default {
               // An error happened.
               this.errMessage = error.message;
               setTimeout(() => (this.errMessage = ""), 3000);
+            })
+            .finally(() => {
+              this.loading = false;
             });
         }
       });

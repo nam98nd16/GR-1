@@ -41,7 +41,12 @@
           <nuxt-link :to="'/reset-password'">
             <a class="login-form-forgot">Forgot password</a>
           </nuxt-link>
-          <a-button type="primary" html-type="submit" class="login-form-button">Log in</a-button>Or
+          <a-button
+            :loading="loading"
+            type="primary"
+            html-type="submit"
+            class="login-form-button"
+          >Log in</a-button>Or
           <nuxt-link :to="'/register'">
             <a>register now!</a>
           </nuxt-link>
@@ -61,7 +66,8 @@ export default {
   },
   data() {
     return {
-      errMessage: ""
+      errMessage: "",
+      loading: false
     };
   },
   methods: {
@@ -72,6 +78,7 @@ export default {
       e.preventDefault();
       this.form.validateFields(async (err, values) => {
         if (!err) {
+          this.loading = true;
           await this.$fireAuth
             .signInWithEmailAndPassword(values.userName, values.password)
             .then(data => {
@@ -100,6 +107,9 @@ export default {
             .catch(err => {
               this.errMessage = err.message;
               setTimeout(() => (this.errMessage = ""), 3000);
+            })
+            .finally(() => {
+              this.loading = false;
             });
         }
       });
