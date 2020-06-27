@@ -2,6 +2,7 @@
   <a-layout-content
     style="background: #fff; display: flex;justify-content: center;flex-direction: column; padding-bottom: 69px;"
   >
+    <h1 style="text-align: center; font-size: 30px">Skill Assessment System</h1>
     <div id="components-form-demo-normal-login">
       <a-form :form="form" class="login-form" @submit="handleSubmit">
         <a-form-item>

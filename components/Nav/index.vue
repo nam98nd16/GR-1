@@ -6,6 +6,11 @@
           <a-icon type="home" />Home
         </nuxt-link>
       </a-menu-item>
+      <a-menu-item key="self-assess">
+        <nuxt-link :to="'/self-assess'">
+          <a-icon type="form" />Self Assess
+        </nuxt-link>
+      </a-menu-item>
       <a-menu-item key="profile">
         <nuxt-link :to="'/profile'">
           <a-icon type="user" />

@@ -27,7 +27,7 @@ export default {
   /*
    ** Plugins to load before mounting the App
    */
-  plugins: ["@/plugins/antd-ui"],
+  plugins: ["@/plugins/antd-ui", "@/plugins/index"],
   /*
    ** Nuxt.js dev-modules
    */
