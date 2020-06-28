@@ -6,9 +6,9 @@
           <a-icon type="home" />Home
         </nuxt-link>
       </a-menu-item>
-      <a-menu-item key="self-assess">
-        <nuxt-link :to="'/self-assess'">
-          <a-icon type="form" />Self Assess
+      <a-menu-item key="assessment">
+        <nuxt-link :to="'/assessment'">
+          <a-icon type="form" />Assessment
         </nuxt-link>
       </a-menu-item>
       <a-menu-item key="profile">
