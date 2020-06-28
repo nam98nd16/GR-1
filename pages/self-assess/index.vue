@@ -76,7 +76,7 @@ export default {
       selectedLevels: {},
       levelOptions: [],
       submitting: false,
-      submittedRecords: null,
+      submittedRecord: null,
       assessmentRecordsRef: null
     };
   },
@@ -107,14 +107,14 @@ export default {
       this.assessmentRecordsRef = this.$fireStore.collection(
         "assessment_records"
       );
-      this.submittedRecords = await this.assessmentRecordsRef
+      let records = await this.assessmentRecordsRef
         .where("creatorId", "==", this.$fireAuth.currentUser.uid)
         .where("assessmentEventId", "==", this.$route.params.evt.id)
         .get();
-      if (!this.submittedRecords.empty) {
-        let record = this.submittedRecords.docs[0].data();
-        this.selectedExperiences = record.selectedExperiences;
-        this.selectedLevels = record.selectedLevels;
+      if (!records.empty) {
+        this.submittedRecord = records.docs[0].data();
+        this.selectedExperiences = this.submittedRecord.selectedExperiences;
+        this.selectedLevels = this.submittedRecord.selectedLevels;
       }
     },
     openAssessModal(skill) {
@@ -132,8 +132,8 @@ export default {
       ) {
         this.submitting = true;
 
-        let recordRef = !this.submittedRecords.empty
-          ? this.assessmentRecordsRef.doc(this.submittedRecords.docs[0].id)
+        let recordRef = this.submittedRecord
+          ? this.assessmentRecordsRef.doc(this.submittedRecord.id)
           : this.assessmentRecordsRef.doc();
         recordRef
           .set({
@@ -143,13 +143,17 @@ export default {
             selectedLevels: this.selectedLevels,
             selectedExperiences: this.selectedExperiences
           })
-          .then(() => {
+          .then(async () => {
             this.$notification.success({
               message: "Assessment record updated successfully!"
             });
+
+            if (!this.submittedRecord) {
+              let record = await recordRef.get();
+              this.submittedRecord = record.data();
+            }
           })
           .catch(error => {
-            // The document probably doesn't exist.
             this.$notification.success({
               message: "Error updating assessment record!"
             });
