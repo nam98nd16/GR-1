@@ -77,19 +77,32 @@ export default {
       levelOptions: [],
       submitting: false,
       submittedRecord: null,
-      assessmentRecordsRef: null
+      assessmentRecordsRef: null,
+      assessmentEvent: null
     };
   },
   async mounted() {
-    this.pageLoading = true;
-    await Promise.all([this.getEvtSkills(), this.retrieveAssessmentRecord()]);
-    this.pageLoading = false;
+    if (!this.$route.query.evtId) this.notifyRouteError();
+    else {
+      this.pageLoading = true;
+      let assessmentPeriods = await this.getAssessmentPeriods();
+      if (assessmentPeriods.empty) this.notifyRouteError();
+      this.assessmentEvent = assessmentPeriods.docs[0].data();
+      await Promise.all([this.getEvtSkills(), this.retrieveAssessmentRecord()]);
+      this.pageLoading = false;
+    }
   },
   methods: {
+    async getAssessmentPeriods() {
+      var colRef = this.$fireStore
+        .collection("assessment_periods")
+        .where("id", "==", this.$route.query.evtId);
+      return await colRef.get();
+    },
     getEvtSkills() {
       var colRef = this.$fireStore.collection("skills");
       colRef
-        .where("id", "in", this.$route.params.evt.skillIds)
+        .where("id", "in", this.assessmentEvent.skillIds)
         .get()
         .then(col => {
           col.forEach(doc => {
@@ -100,8 +113,7 @@ export default {
         })
         .catch(function(error) {
           console.log("Error getting collection:", error);
-        })
-        .finally(() => {});
+        });
     },
     async retrieveAssessmentRecord() {
       this.assessmentRecordsRef = this.$fireStore.collection(
@@ -109,7 +121,7 @@ export default {
       );
       let records = await this.assessmentRecordsRef
         .where("creatorId", "==", this.$fireAuth.currentUser.uid)
-        .where("assessmentEventId", "==", this.$route.params.evt.id)
+        .where("assessmentEventId", "==", this.assessmentEvent.id)
         .get();
       if (!records.empty) {
         this.submittedRecord = records.docs[0].data();
@@ -138,7 +150,7 @@ export default {
         recordRef
           .set({
             id: recordRef.id,
-            assessmentEventId: this.$route.params.evt.id,
+            assessmentEventId: this.assessmentEvent.id,
             creatorId: this.$fireAuth.currentUser.uid,
             selectedLevels: this.selectedLevels,
             selectedExperiences: this.selectedExperiences
@@ -172,6 +184,10 @@ export default {
     },
     handleLevelSelection(event) {
       this.$set(this.selectedLevels, this.skillTitle, event.target.value);
+    },
+    notifyRouteError() {
+      this.$notification.error({ message: "No evtId found!" });
+      window.history.back();
     }
   }
 };

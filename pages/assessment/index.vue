@@ -53,7 +53,7 @@ export default {
         .get()
         .then(col => {
           col.forEach(doc => {
-            this.assessmentPeriods.push({ ...doc.data(), id: doc.id });
+            this.assessmentPeriods.push({ ...doc.data() });
           });
         })
         .catch(function(error) {
@@ -69,8 +69,8 @@ export default {
     openAssessPage(assessmentEvent) {
       this.$router.push({
         name: "self-assess",
-        params: {
-          evt: assessmentEvent
+        query: {
+          evtId: assessmentEvent.id
         }
       });
     }
