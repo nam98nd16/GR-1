@@ -19,7 +19,6 @@
       <a-collapse-panel key="3" header="Project Management Skills"></a-collapse-panel>
     </a-collapse>
     <a-modal
-      v-if="visible"
       :title="skillTitle"
       :visible="visible"
       :centered="true"
@@ -127,30 +126,39 @@ export default {
       this.visible = true;
     },
     async handleOk() {
-      this.submitting = true;
+      if (
+        !_.isEmpty(this.selectedExperiences) ||
+        !_.isEmpty(this.selectedLevels)
+      ) {
+        this.submitting = true;
 
-      let recordRef = !this.submittedRecords.empty
-        ? this.assessmentRecordsRef.doc(this.submittedRecords.docs[0].id)
-        : this.assessmentRecordsRef.doc();
-      recordRef
-        .set({
-          id: recordRef.id,
-          assessmentEventId: this.$route.params.evt.id,
-          creatorId: this.$fireAuth.currentUser.uid,
-          selectedLevels: this.selectedLevels,
-          selectedExperiences: this.selectedExperiences
-        })
-        .then(() => {
-          console.log("Document successfully updated!");
-        })
-        .catch(error => {
-          // The document probably doesn't exist.
-          console.error("Error updating document: ", error);
-        })
-        .finally(() => {
-          this.submitting = false;
-          this.visible = false;
-        });
+        let recordRef = !this.submittedRecords.empty
+          ? this.assessmentRecordsRef.doc(this.submittedRecords.docs[0].id)
+          : this.assessmentRecordsRef.doc();
+        recordRef
+          .set({
+            id: recordRef.id,
+            assessmentEventId: this.$route.params.evt.id,
+            creatorId: this.$fireAuth.currentUser.uid,
+            selectedLevels: this.selectedLevels,
+            selectedExperiences: this.selectedExperiences
+          })
+          .then(() => {
+            this.$notification.success({
+              message: "Assessment record updated successfully!"
+            });
+          })
+          .catch(error => {
+            // The document probably doesn't exist.
+            this.$notification.success({
+              message: "Error updating assessment record!"
+            });
+          })
+          .finally(() => {
+            this.submitting = false;
+            this.visible = false;
+          });
+      } else this.visible = false;
     },
     handleCancel() {
       this.visible = false;
