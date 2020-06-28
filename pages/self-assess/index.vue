@@ -16,7 +16,7 @@
         >{{(pagination.current - 1) * pagination.pageSize + index + 1}}</template>
         <template slot="skillCount" slot-scope="text">{{text.length}}</template>
         <template slot="action" slot-scope="text, record">
-          <a-button type="primary">Assess</a-button>
+          <a-button type="primary" @click="openAssessPage(record)">Assess</a-button>
         </template>
       </a-table>
     </div>
@@ -53,8 +53,7 @@ export default {
         .get()
         .then(col => {
           col.forEach(doc => {
-            console.log("doc", doc.data());
-            this.assessmentPeriods.push(doc.data());
+            this.assessmentPeriods.push({ ...doc.data(), id: doc.id });
           });
         })
         .catch(function(error) {
@@ -66,6 +65,14 @@ export default {
     },
     handleTableChange(pagination, filters, sorter) {
       this.pagination = pagination;
+    },
+    openAssessPage(assessmentEvent) {
+      this.$router.push({
+        name: "assess",
+        params: {
+          evt: assessmentEvent
+        }
+      });
     }
   }
 };
