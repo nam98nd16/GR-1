@@ -1,53 +1,55 @@
 <template>
-  <div>
-    <a-collapse v-model="activeKey">
-      <a-collapse-panel key="1" header="Programming Skills">
-        <a-list
-          class="demo-loadmore-list"
-          item-layout="horizontal"
-          :data-source="programmingSkills"
-        >
-          <a-list-item slot="renderItem" slot-scope="item, index">
-            <a-button slot="actions" type="primary" @click="openAssessModal(item)">Assess</a-button>
-            <a-list-item-meta :description="item.description">
-              <div slot="title">{{item.title}}</div>
-            </a-list-item-meta>
-          </a-list-item>
-        </a-list>
-      </a-collapse-panel>
-      <a-collapse-panel key="2" header="Soft Skills"></a-collapse-panel>
-      <a-collapse-panel key="3" header="Project Management Skills"></a-collapse-panel>
-    </a-collapse>
-    <a-modal
-      :title="skillTitle"
-      :visible="visible"
-      :centered="true"
-      :width="800"
-      :okButtonProps="{props: { loading: submitting }}"
-      @ok="handleOk"
-      @cancel="handleCancel"
-    >
-      <a-form>
-        <a-form-item label="Experience" v-bind="formItemLayout">
-          <a-radio-group
-            @change="handleExperienceSelection"
-            :value="selectedExperiences[skillTitle]"
+  <a-spin :spinning="pageLoading">
+    <div>
+      <a-collapse v-model="activeKey">
+        <a-collapse-panel key="1" header="Programming Skills">
+          <a-list
+            class="demo-loadmore-list"
+            item-layout="horizontal"
+            :data-source="programmingSkills"
           >
-            <a-radio
-              v-for="experience in experienceOptions"
-              :value="experience"
-              :key="experience"
-            >{{experience}}</a-radio>
-          </a-radio-group>
-        </a-form-item>
-        <a-form-item label="Level" v-bind="formItemLayout">
-          <a-radio-group @change="handleLevelSelection" :value="selectedLevels[skillTitle]">
-            <a-radio v-for="level in levelOptions" :value="level" :key="level">{{level}}</a-radio>
-          </a-radio-group>
-        </a-form-item>
-      </a-form>
-    </a-modal>
-  </div>
+            <a-list-item slot="renderItem" slot-scope="item, index">
+              <a-button slot="actions" type="primary" @click="openAssessModal(item)">Assess</a-button>
+              <a-list-item-meta :description="item.description">
+                <div slot="title">{{item.title}}</div>
+              </a-list-item-meta>
+            </a-list-item>
+          </a-list>
+        </a-collapse-panel>
+        <a-collapse-panel key="2" header="Soft Skills"></a-collapse-panel>
+        <a-collapse-panel key="3" header="Project Management Skills"></a-collapse-panel>
+      </a-collapse>
+      <a-modal
+        :title="skillTitle"
+        :visible="visible"
+        :centered="true"
+        :width="800"
+        :okButtonProps="{props: { loading: submitting }}"
+        @ok="handleOk"
+        @cancel="handleCancel"
+      >
+        <a-form>
+          <a-form-item label="Experience" v-bind="formItemLayout">
+            <a-radio-group
+              @change="handleExperienceSelection"
+              :value="selectedExperiences[skillTitle]"
+            >
+              <a-radio
+                v-for="experience in experienceOptions"
+                :value="experience"
+                :key="experience"
+              >{{experience}}</a-radio>
+            </a-radio-group>
+          </a-form-item>
+          <a-form-item label="Level" v-bind="formItemLayout">
+            <a-radio-group @change="handleLevelSelection" :value="selectedLevels[skillTitle]">
+              <a-radio v-for="level in levelOptions" :value="level" :key="level">{{level}}</a-radio>
+            </a-radio-group>
+          </a-form-item>
+        </a-form>
+      </a-modal>
+    </div>
+  </a-spin>
 </template>
 
 <script>
@@ -78,13 +80,13 @@ export default {
       assessmentRecordsRef: null
     };
   },
-  mounted() {
-    this.getEvtSkills();
-    this.retrieveAssessmentRecord();
+  async mounted() {
+    this.pageLoading = true;
+    await Promise.all([this.getEvtSkills(), this.retrieveAssessmentRecord()]);
+    this.pageLoading = false;
   },
   methods: {
     getEvtSkills() {
-      this.pageLoading = true;
       var colRef = this.$fireStore.collection("skills");
       colRef
         .where("id", "in", this.$route.params.evt.skillIds)
@@ -99,9 +101,7 @@ export default {
         .catch(function(error) {
           console.log("Error getting collection:", error);
         })
-        .finally(() => {
-          this.pageLoading = false;
-        });
+        .finally(() => {});
     },
     async retrieveAssessmentRecord() {
       this.assessmentRecordsRef = this.$fireStore.collection(
