@@ -22,9 +22,30 @@
       :title="skillTitle"
       :visible="visible"
       :centered="true"
+      :width="800"
       @ok="handleOk"
       @cancel="handleCancel"
-    ></a-modal>
+    >
+      <a-form>
+        <a-form-item label="Experience" v-bind="formItemLayout">
+          <a-radio-group
+            @change="handleExperienceSelection"
+            :value="selectedExperience[skillTitle]"
+          >
+            <a-radio
+              v-for="experience in experienceOptions"
+              :value="experience"
+              :key="experience"
+            >{{experience}}</a-radio>
+          </a-radio-group>
+        </a-form-item>
+        <a-form-item label="Level" v-bind="formItemLayout">
+          <a-radio-group @change="handleLevelSelection" :value="selectedLevel[skillTitle]">
+            <a-radio v-for="level in levelOptions" :value="level" :key="level">{{level}}</a-radio>
+          </a-radio-group>
+        </a-form-item>
+      </a-form>
+    </a-modal>
   </div>
 </template>
 
@@ -32,11 +53,25 @@
 export default {
   data() {
     return {
+      formItemLayout: {
+        labelCol: {
+          md: 4,
+          sm: 24
+        },
+        wrapperCol: {
+          md: 20,
+          sm: 24
+        }
+      },
       pageLoading: false,
       programmingSkills: [],
       activeKey: ["1"],
       visible: false,
-      skillTitle: ""
+      skillTitle: "",
+      selectedExperience: {},
+      experienceOptions: [],
+      selectedLevel: {},
+      levelOptions: []
     };
   },
   mounted() {
@@ -61,11 +96,14 @@ export default {
         })
         .finally(() => {
           this.pageLoading = false;
-          console.log("pS", this.programmingSkills);
         });
     },
     openAssessModal(skill) {
       this.skillTitle = skill.title;
+      if (skill.assessmentMetrics.experiences)
+        this.experienceOptions = skill.assessmentMetrics.experiences;
+      if (skill.assessmentMetrics.levels)
+        this.levelOptions = skill.assessmentMetrics.levels;
       this.visible = true;
     },
     handleOk() {
@@ -73,6 +111,12 @@ export default {
     },
     handleCancel() {
       this.visible = false;
+    },
+    handleExperienceSelection(event) {
+      this.$set(this.selectedExperience, this.skillTitle, event.target.value);
+    },
+    handleLevelSelection(event) {
+      this.$set(this.selectedLevel, this.skillTitle, event.target.value);
     }
   }
 };
