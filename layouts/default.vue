@@ -1,6 +1,6 @@
 <template>
-  <a-layout>
-    <Nav />
+  <a-layout style="margin-right: 10px; margin-left: 10px">
+    <Nav style="margin-bottom: 10px" />
     <nuxt />
   </a-layout>
 </template>
