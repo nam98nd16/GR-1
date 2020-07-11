@@ -73,5 +73,8 @@ export default {
   },
   router: {
     base: "/GR-1/"
+  },
+  server: {
+    host: "0.0.0.0"
   }
 };
