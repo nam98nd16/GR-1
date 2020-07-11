@@ -1,6 +1,6 @@
 <template>
   <a-spin :spinning="pageLoading">
-    <div>
+    <div style="min-height: 100vh">
       <a-collapse v-model="activeKey">
         <a-collapse-panel key="1" header="Programming Skills">
           <a-list
@@ -10,6 +10,11 @@
           >
             <a-list-item slot="renderItem" slot-scope="item, index">
               <a-button slot="actions" type="primary" @click="openAssessModal(item)">Assess</a-button>
+
+              <a-tooltip slot="actions" placement="bottomLeft">
+                <template slot="title">Already assessed</template>
+                <a-icon v-if="checkAssessedSkill(item)" type="check" />
+              </a-tooltip>
               <a-list-item-meta :description="item.description">
                 <div slot="title">{{item.title}}</div>
               </a-list-item-meta>
@@ -19,6 +24,15 @@
         <a-collapse-panel key="2" header="Soft Skills"></a-collapse-panel>
         <a-collapse-panel key="3" header="Project Management Skills"></a-collapse-panel>
       </a-collapse>
+      <div style="text-align: center; margin-top: 10px">
+        <a-button v-if="!submitted" slot="actions" type="primary" @click="handleSubmission">Submit</a-button>
+
+        <a-tooltip v-else slot="actions">
+          <template slot="title">Assessment already submitted</template>
+          <a-button disabled type="primary">Submit</a-button>
+        </a-tooltip>
+      </div>
+
       <a-modal
         :title="skillTitle"
         :visible="visible"
@@ -78,7 +92,9 @@ export default {
       submitting: false,
       submittedRecord: null,
       assessmentRecordsRef: null,
-      assessmentEvent: null
+      assessmentEvent: null,
+      notAssessedSkillList: [],
+      submitted: false
     };
   },
   async mounted() {
@@ -125,6 +141,7 @@ export default {
         .get();
       if (!records.empty) {
         this.submittedRecord = records.docs[0].data();
+        if (this.submittedRecord.status == "submitted") this.submitted = true;
         this.selectedExperiences = this.submittedRecord.selectedExperiences;
         this.selectedLevels = this.submittedRecord.selectedLevels;
       }
@@ -176,8 +193,11 @@ export default {
           });
       } else this.visible = false;
     },
-    handleCancel() {
+    async handleCancel() {
       this.visible = false;
+      this.pageLoading = true;
+      await this.retrieveAssessmentRecord();
+      this.pageLoading = false;
     },
     handleExperienceSelection(event) {
       this.$set(this.selectedExperiences, this.skillTitle, event.target.value);
@@ -188,6 +208,43 @@ export default {
     notifyRouteError() {
       this.$notification.error({ message: "No evtId found!" });
       window.history.back();
+    },
+    handleSubmission() {
+      if (this.notAssessedSkillList.length)
+        this.$notification.error({
+          message: "Some skills were not properly assessed, please try again!"
+        });
+      else {
+        this.$confirm({
+          content:
+            "Are you sure to submit your assessment? You will not be able to change it later!",
+          onOk: async () => {
+            let recordRef = this.submittedRecord
+              ? this.assessmentRecordsRef.doc(this.submittedRecord.id)
+              : this.assessmentRecordsRef.doc();
+
+            await recordRef.set(
+              {
+                status: "submitted"
+              },
+              { merge: true }
+            );
+            this.$notification.success({ message: "Submitted successfully!" });
+            this.submitted = true;
+          }
+        });
+      }
+    },
+    checkAssessedSkill(skill) {
+      let isAssessed =
+        this.selectedExperiences[skill.title] &&
+        this.selectedLevels[skill.title];
+      if (!isAssessed && !this.notAssessedSkillList.includes(skill.title)) {
+        this.notAssessedSkillList.push(skill.title);
+      } else if (isAssessed) {
+        _.pull(this.notAssessedSkillList, skill.title);
+      }
+      return isAssessed;
     }
   }
 };
