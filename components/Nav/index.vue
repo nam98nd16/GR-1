@@ -6,9 +6,14 @@
           <a-icon type="home" />Home
         </nuxt-link>
       </a-menu-item>
-      <a-menu-item key="assessment">
-        <nuxt-link :to="'/assessment'">
-          <a-icon type="form" />Assessment
+      <a-menu-item key="assess">
+        <nuxt-link :to="'/assess'">
+          <a-icon type="form" />Assess
+        </nuxt-link>
+      </a-menu-item>
+      <a-menu-item key="history">
+        <nuxt-link :to="'/history'">
+          <a-icon type="history" />History
         </nuxt-link>
       </a-menu-item>
       <a-menu-item key="profile">
