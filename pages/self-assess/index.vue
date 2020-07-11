@@ -11,7 +11,7 @@
             <a-list-item slot="renderItem" slot-scope="item, index">
               <a-button
                 slot="actions"
-                :disabled="submitted"
+                :disabled="submitted || eventEnded"
                 type="primary"
                 @click="openAssessModal(item)"
               >Assess</a-button>
@@ -30,10 +30,17 @@
         <a-collapse-panel key="3" header="Project Management Skills"></a-collapse-panel>
       </a-collapse>
       <div style="text-align: center; margin-top: 10px">
-        <a-button v-if="!submitted" slot="actions" type="primary" @click="handleSubmission">Submit</a-button>
+        <a-button
+          v-if="!submitted && !eventEnded"
+          slot="actions"
+          type="primary"
+          @click="handleSubmission"
+        >Submit</a-button>
 
         <a-tooltip v-else slot="actions">
-          <template slot="title">Assessment already submitted</template>
+          <template
+            slot="title"
+          >{{submitted?'Assessment already submitted':eventEnded?'Assessment event already ended':''}}</template>
           <a-button disabled type="primary">Submit</a-button>
         </a-tooltip>
       </div>
@@ -99,7 +106,8 @@ export default {
       assessmentRecordsRef: null,
       assessmentEvent: null,
       notAssessedSkillList: [],
-      submitted: false
+      submitted: false,
+      eventEnded: false
     };
   },
   async mounted() {
@@ -109,6 +117,8 @@ export default {
       let assessmentPeriods = await this.getAssessmentPeriods();
       if (assessmentPeriods.empty) this.notifyRouteError();
       this.assessmentEvent = assessmentPeriods.docs[0].data();
+      if (this.$moment(this.assessmentEvent.endDate).diff(this.$moment()) <= 0)
+        this.eventEnded = true;
       await Promise.all([this.getEvtSkills(), this.retrieveAssessmentRecord()]);
       this.pageLoading = false;
     }
