@@ -9,7 +9,12 @@
             :data-source="programmingSkills"
           >
             <a-list-item slot="renderItem" slot-scope="item, index">
-              <a-button slot="actions" type="primary" @click="openAssessModal(item)">Assess</a-button>
+              <a-button
+                slot="actions"
+                :disabled="submitted"
+                type="primary"
+                @click="openAssessModal(item)"
+              >Assess</a-button>
 
               <a-tooltip slot="actions" placement="bottomLeft">
                 <template slot="title">Already assessed</template>
