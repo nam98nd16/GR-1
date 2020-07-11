@@ -144,6 +144,9 @@ export default {
         if (this.submittedRecord.status == "submitted") this.submitted = true;
         this.selectedExperiences = this.submittedRecord.selectedExperiences;
         this.selectedLevels = this.submittedRecord.selectedLevels;
+      } else {
+        this.selectedExperiences = {};
+        this.selectedLevels = {};
       }
     },
     openAssessModal(skill) {
@@ -160,7 +163,7 @@ export default {
         !_.isEmpty(this.selectedLevels)
       ) {
         this.submitting = true;
-
+        console.log("here here");
         let recordRef = this.submittedRecord
           ? this.assessmentRecordsRef.doc(this.submittedRecord.id)
           : this.assessmentRecordsRef.doc();
