@@ -26,8 +26,27 @@
             </a-list-item>
           </a-list>
         </a-collapse-panel>
-        <a-collapse-panel key="2" header="Soft Skills"></a-collapse-panel>
-        <a-collapse-panel key="3" header="Project Management Skills"></a-collapse-panel>
+        <a-collapse-panel key="2" header="Frameworks">
+          <a-list class="demo-loadmore-list" item-layout="horizontal" :data-source="frameworks">
+            <a-list-item slot="renderItem" slot-scope="item, index">
+              <a-button
+                slot="actions"
+                :disabled="(submitted || eventEnded) && !evtId"
+                type="primary"
+                @click="openAssessModal(item)"
+              >{{evtId ? 'View' : 'Assess'}}</a-button>
+
+              <a-tooltip v-if="!evtId" slot="actions" placement="bottomLeft">
+                <template slot="title">Already assessed</template>
+                <a-icon v-if="checkAssessedSkill(item)" type="check" />
+              </a-tooltip>
+              <a-list-item-meta :description="item.description">
+                <div slot="title">{{item.title}}</div>
+              </a-list-item-meta>
+            </a-list-item>
+          </a-list>
+        </a-collapse-panel>
+        <a-collapse-panel key="3" header="Soft Skills"></a-collapse-panel>
       </a-collapse>
       <div v-if="!evtId" style="text-align: center; margin-top: 10px">
         <a-button
@@ -100,6 +119,7 @@ export default {
       },
       pageLoading: false,
       programmingSkills: [],
+      frameworks: [],
       activeKey: ["1"],
       visible: false,
       skillTitle: "",
@@ -159,6 +179,8 @@ export default {
               let docData = doc.data();
               if (docData.type == "Programming Skill")
                 this.programmingSkills.push(docData);
+              else if (docData.type == "Framework")
+                this.frameworks.push(docData);
             });
           })
           .catch(function(error) {
