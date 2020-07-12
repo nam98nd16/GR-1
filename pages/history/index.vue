@@ -1,7 +1,7 @@
 <template>
   <a-spin :spinning="pageLoading">
     <div style="min-height: 100vh">
-      <h1 style="text-align: center">Assessment History</h1>
+      <h1 style="text-align: center">My Assessment History</h1>
       <a-table
         v-if="!pageLoading"
         :columns="columns"
