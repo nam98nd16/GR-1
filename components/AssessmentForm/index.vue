@@ -11,12 +11,12 @@
             <a-list-item slot="renderItem" slot-scope="item, index">
               <a-button
                 slot="actions"
-                :disabled="submitted || eventEnded"
+                :disabled="(submitted || eventEnded) && !evtId"
                 type="primary"
                 @click="openAssessModal(item)"
-              >Assess</a-button>
+              >{{evtId ? 'View' : 'Assess'}}</a-button>
 
-              <a-tooltip slot="actions" placement="bottomLeft">
+              <a-tooltip v-if="!evtId" slot="actions" placement="bottomLeft">
                 <template slot="title">Already assessed</template>
                 <a-icon v-if="checkAssessedSkill(item)" type="check" />
               </a-tooltip>
@@ -29,7 +29,7 @@
         <a-collapse-panel key="2" header="Soft Skills"></a-collapse-panel>
         <a-collapse-panel key="3" header="Project Management Skills"></a-collapse-panel>
       </a-collapse>
-      <div style="text-align: center; margin-top: 10px">
+      <div v-if="!evtId" style="text-align: center; margin-top: 10px">
         <a-button
           v-if="!submitted && !eventEnded"
           slot="actions"
@@ -59,6 +59,7 @@
             <a-radio-group
               @change="handleExperienceSelection"
               :value="selectedExperiences[skillTitle]"
+              :disabled="evtId"
             >
               <a-radio
                 v-for="experience in experienceOptions"
@@ -68,7 +69,11 @@
             </a-radio-group>
           </a-form-item>
           <a-form-item label="Level" v-bind="formItemLayout">
-            <a-radio-group @change="handleLevelSelection" :value="selectedLevels[skillTitle]">
+            <a-radio-group
+              @change="handleLevelSelection"
+              :value="selectedLevels[skillTitle]"
+              :disabled="evtId"
+            >
               <a-radio v-for="level in levelOptions" :value="level" :key="level">{{level}}</a-radio>
             </a-radio-group>
           </a-form-item>
@@ -179,8 +184,9 @@ export default {
     },
     async handleOk() {
       if (
-        !_.isEmpty(this.selectedExperiences) ||
-        !_.isEmpty(this.selectedLevels)
+        (!_.isEmpty(this.selectedExperiences) ||
+          !_.isEmpty(this.selectedLevels)) &&
+        !this.evtId
       ) {
         this.submitting = true;
         let recordRef = this.submittedRecord
@@ -217,9 +223,11 @@ export default {
     },
     async handleCancel() {
       this.visible = false;
-      this.pageLoading = true;
-      await this.retrieveAssessmentRecord();
-      this.pageLoading = false;
+      if (!this.evtId) {
+        this.pageLoading = true;
+        await this.retrieveAssessmentRecord();
+        this.pageLoading = false;
+      }
     },
     handleExperienceSelection(event) {
       this.$set(this.selectedExperiences, this.skillTitle, event.target.value);
