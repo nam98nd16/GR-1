@@ -142,19 +142,28 @@ export default {
     },
     getEvtSkills() {
       var colRef = this.$fireStore.collection("skills");
-      colRef
-        .where("id", "in", this.assessmentEvent.skillIds)
-        .get()
-        .then(col => {
-          col.forEach(doc => {
-            let docData = doc.data();
-            if (docData.type == "Programming Skill")
-              this.programmingSkills.push(docData);
+      for (
+        let i = 0;
+        i < Math.ceil(this.assessmentEvent.skillIds.length / 10);
+        i++
+      )
+        colRef
+          .where(
+            "id",
+            "in",
+            this.assessmentEvent.skillIds.slice(i * 10, i * 10 + 10)
+          )
+          .get()
+          .then(col => {
+            col.forEach(doc => {
+              let docData = doc.data();
+              if (docData.type == "Programming Skill")
+                this.programmingSkills.push(docData);
+            });
+          })
+          .catch(function(error) {
+            console.log("Error getting collection:", error);
           });
-        })
-        .catch(function(error) {
-          console.log("Error getting collection:", error);
-        });
     },
     async retrieveAssessmentRecord() {
       this.assessmentRecordsRef = this.$fireStore.collection(
