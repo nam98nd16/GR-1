@@ -32,6 +32,7 @@
 
 <script>
 import { columns } from "./const";
+import { mapMutations } from "vuex";
 export default {
   data() {
     return {
@@ -50,6 +51,9 @@ export default {
     this.getAllAssessmentRecords();
   },
   methods: {
+    ...mapMutations({
+      setCurrentAssessmentRecord: "history/setCurrentAssessmentRecord"
+    }),
     async getAllAssessmentRecords() {
       this.pageLoading = true;
       this.assessmentRecordsRef = this.$fireStore.collection(
@@ -60,7 +64,6 @@ export default {
         .get();
       if (!records.empty) {
         records.forEach(record => {
-          console.log("record", record.data());
           this.assessmentRecords.push(record.data());
         });
         let evtIds = this.assessmentRecords.map(
@@ -74,21 +77,28 @@ export default {
           .get()
           .then(res => {
             res.forEach(evt => {
-              console.log("period", evt.data());
               this.assessmentRecords.find(
                 record => record.assessmentEventId == evt.data().id
               ).evt = evt.data();
             });
-            console.log("records", this.assessmentRecords);
             this.pageLoading = false;
           });
       } else {
+        this.pageLoading = false;
       }
     },
     handleTableChange(pagination) {
       this.pagination = pagination;
     },
-    openHistoryPage(record) {}
+    openHistoryPage(record) {
+      this.setCurrentAssessmentRecord(record);
+      this.$router.push({
+        name: "history-id",
+        params: {
+          id: record.id
+        }
+      });
+    }
   }
 };
 </script>
