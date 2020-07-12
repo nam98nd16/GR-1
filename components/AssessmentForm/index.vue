@@ -11,10 +11,25 @@
             <a-list-item slot="renderItem" slot-scope="item, index">
               <a-button
                 slot="actions"
+                v-if="!evtId"
                 :disabled="(submitted || eventEnded) && !evtId"
                 type="primary"
                 @click="openAssessModal(item)"
               >{{evtId ? 'View' : 'Assess'}}</a-button>
+              <span slot="actions" v-if="evtId">
+                <div>
+                  <a-tag color="purple">
+                    Experience:
+                    {{selectedExperiences[item.title]}}
+                  </a-tag>
+                </div>
+                <div>
+                  <a-tag color="red">
+                    Level:
+                    {{selectedLevels[item.title]}}
+                  </a-tag>
+                </div>
+              </span>
 
               <a-tooltip v-if="!evtId" slot="actions" placement="bottomLeft">
                 <template slot="title">Already assessed</template>
@@ -31,10 +46,20 @@
             <a-list-item slot="renderItem" slot-scope="item, index">
               <a-button
                 slot="actions"
+                v-if="!evtId"
                 :disabled="(submitted || eventEnded) && !evtId"
                 type="primary"
                 @click="openAssessModal(item)"
               >{{evtId ? 'View' : 'Assess'}}</a-button>
+
+              <span slot="actions" v-if="evtId">
+                <div>
+                  <a-tag color="purple">Experience: {{selectedExperiences[item.title]}}</a-tag>
+                </div>
+                <div>
+                  <a-tag color="red">Level: {{selectedLevels[item.title]}}</a-tag>
+                </div>
+              </span>
 
               <a-tooltip v-if="!evtId" slot="actions" placement="bottomLeft">
                 <template slot="title">Already assessed</template>
@@ -120,7 +145,7 @@ export default {
       pageLoading: false,
       programmingSkills: [],
       frameworks: [],
-      activeKey: ["1"],
+      activeKey: ["1", "2", "3"],
       visible: false,
       skillTitle: "",
       selectedExperiences: {},
