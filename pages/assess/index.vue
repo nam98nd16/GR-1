@@ -19,7 +19,7 @@
           <a-button
             type="primary"
             @click="openAssessPage(record)"
-          >{{$moment(record.endDate).diff($moment()) > 0 ? 'Assess' : 'View submission'}}</a-button>
+          >{{$moment(record.endDate).diff($moment()) > 0 ? 'Assess' : 'Detail'}}</a-button>
         </template>
       </a-table>
     </div>
