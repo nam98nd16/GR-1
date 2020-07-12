@@ -25,6 +25,11 @@ export const columns = [
     scopedSlots: { customRender: "skillCount" }
   },
   {
+    title: "Status",
+    key: "status",
+    scopedSlots: { customRender: "status" }
+  },
+  {
     title: "Action",
     scopedSlots: { customRender: "action" },
     width: 100

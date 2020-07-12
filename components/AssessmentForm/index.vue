@@ -2,7 +2,7 @@
   <a-spin :spinning="pageLoading">
     <div style="min-height: 100vh">
       <a-collapse v-model="activeKey">
-        <a-collapse-panel key="1" header="Programming Skills">
+        <a-collapse-panel key="1" header="Programming Languages">
           <a-list
             class="demo-loadmore-list"
             item-layout="horizontal"

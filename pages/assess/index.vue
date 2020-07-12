@@ -15,11 +15,12 @@
           slot-scope="text, record, index"
         >{{(pagination.current - 1) * pagination.pageSize + index + 1}}</template>
         <template slot="skillCount" slot-scope="text">{{text.length}}</template>
+        <template slot="status" slot-scope="text, record">{{getEventStatus(record)}}</template>
         <template slot="action" slot-scope="text, record">
           <a-button
             type="primary"
             @click="openAssessPage(record)"
-          >{{$moment(record.endDate).diff($moment()) > 0 ? 'Assess' : 'Detail'}}</a-button>
+          >{{getEventStatus(record) == 'Ongoing' ? 'Assess' : 'Detail'}}</a-button>
         </template>
       </a-table>
     </div>
@@ -76,6 +77,16 @@ export default {
           evtId: assessmentEvent.id
         }
       });
+    },
+    getEventStatus(event) {
+      let startDate = this.$moment(event.startDate);
+      let endDate = this.$moment(event.endDate);
+      let today = this.$moment();
+      return startDate.diff(today) < 0 && endDate.diff(today) > 0
+        ? "Ongoing"
+        : endDate.diff(today) < 0
+        ? "Ended"
+        : "Upcoming";
     }
   }
 };
