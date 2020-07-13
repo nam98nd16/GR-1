@@ -4,5 +4,7 @@
   </a-layout>
 </template>
 <script>
-export default {};
+export default {
+  middleware: "loginGuard"
+};
 </script>
