@@ -1,13 +1,7 @@
 <template>
   <div class="container">
     <div>
-      <logo />
-      <h1 class="title">skill-assessment</h1>
-      <h2 class="subtitle">For GR-1</h2>
-      <div class="links">
-        <a href="https://nuxtjs.org/" target="_blank" class="button--green">Documentation</a>
-        <a href="https://github.com/nuxt/nuxt.js" target="_blank" class="button--grey">GitHub</a>
-      </div>
+      <h1 class="title">Skill Assessment System</h1>
     </div>
   </div>
 </template>
@@ -52,5 +46,10 @@ export default {
 
 .links {
   padding-top: 15px;
+}
+
+img {
+  width: 100%;
+  max-width: 300px;
 }
 </style>

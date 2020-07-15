@@ -1,15 +1,19 @@
 <template>
   <a-layout style="margin-right: 10px; margin-left: 10px">
     <Nav style="margin-bottom: 10px" />
-    <nuxt />
+    <nuxt
+      style="margin: 0px 16px 7px 16px;padding: 24px; background: #fff; min-height: calc(100vh - 135px)"
+    />
+    <Footer />
   </a-layout>
 </template>
 
 <script>
 import Nav from "@/components/Nav";
+import Footer from "@/components/Footer";
 export default {
   middleware: "auth",
-  components: { Nav }
+  components: { Nav, Footer }
 };
 </script>
 
